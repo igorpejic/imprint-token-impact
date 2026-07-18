@@ -1,0 +1,587 @@
+.foundry-shell {
+  position: relative;
+  display: grid;
+  grid-template-columns: 245px minmax(520px, 1fr) 275px;
+  grid-template-rows: 70px minmax(0, 1fr);
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: #eef0ec;
+  background:
+    radial-gradient(circle at 52% 42%, rgba(80, 74, 125, 0.16), transparent 34%),
+    #08090d;
+}
+
+.foundry-shell::before {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: radial-gradient(circle, black, transparent 76%);
+  content: "";
+  pointer-events: none;
+}
+
+.foundry-header {
+  z-index: 10;
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 245px 1fr 275px;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(8, 9, 13, 0.76);
+  backdrop-filter: blur(22px);
+}
+
+.foundry-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 100%;
+  padding: 0 20px;
+  border-right: 1px solid rgba(255, 255, 255, 0.09);
+  color: inherit;
+  text-decoration: none;
+}
+
+.foundry-brand img {
+  width: 27px;
+  height: 27px;
+  filter: invert(1);
+}
+
+.foundry-brand > span {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.foundry-brand strong {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.foundry-brand small,
+.foundry-status small {
+  color: #6e747e;
+  font-family: "DM Mono", monospace;
+  font-size: 7px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.foundry-live {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #777e89;
+  font-family: "DM Mono", monospace;
+  font-size: 8px;
+  letter-spacing: 0.13em;
+}
+
+.foundry-live i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #80bb91;
+  box-shadow: 0 0 12px rgba(128, 187, 145, 0.7);
+  animation: foundryPulse 1.7s ease-in-out infinite;
+}
+
+.foundry-switch {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 9px;
+  height: 100%;
+  padding: 0 22px;
+  border-left: 1px solid rgba(255, 255, 255, 0.09);
+  color: #878e98;
+  font-size: 9px;
+  text-decoration: none;
+}
+
+.foundry-switch:hover {
+  color: #e6e8e4;
+}
+
+.foundry-story,
+.foundry-data {
+  z-index: 5;
+  min-height: 0;
+  padding: 26px 21px 20px;
+  background: linear-gradient(180deg, rgba(15, 17, 22, 0.7), rgba(9, 10, 14, 0.48));
+  backdrop-filter: blur(18px);
+}
+
+.foundry-story {
+  grid-column: 1;
+  border-right: 1px solid rgba(255, 255, 255, 0.075);
+}
+
+.foundry-data {
+  grid-column: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-left: 1px solid rgba(255, 255, 255, 0.075);
+}
+
+.foundry-kicker {
+  color: #686f7b;
+  font-family: "DM Mono", monospace;
+  font-size: 8px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+}
+
+.foundry-story h1 {
+  margin: 16px 0 14px;
+  color: #f1f1ed;
+  font-size: clamp(25px, 2.25vw, 34px);
+  font-weight: 500;
+  letter-spacing: -0.055em;
+  line-height: 1.04;
+}
+
+.foundry-story h1 em {
+  color: #9298a2;
+  font-style: normal;
+}
+
+.foundry-story > p {
+  margin: 0;
+  color: #747a84;
+  font-size: 9px;
+  line-height: 1.65;
+}
+
+.foundry-stages {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  margin-top: 34px;
+}
+
+.foundry-stages::before {
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  left: 10px;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  content: "";
+}
+
+.foundry-stages > div {
+  position: relative;
+  display: grid;
+  grid-template-columns: 21px 1fr;
+  gap: 11px;
+  align-items: center;
+}
+
+.foundry-stages > div > i {
+  z-index: 1;
+  display: grid;
+  width: 21px;
+  height: 21px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 50%;
+  background: #15171c;
+  color: #626975;
+  font-family: "DM Mono", monospace;
+  font-size: 7px;
+  font-style: normal;
+  place-items: center;
+}
+
+.foundry-stages > div.active > i {
+  border-color: rgba(121, 186, 145, 0.48);
+  color: #b8e2c4;
+  box-shadow: 0 0 18px rgba(121, 186, 145, 0.16);
+}
+
+.foundry-stages > div.done > i {
+  border-color: rgba(121, 186, 145, 0.25);
+  background: rgba(74, 112, 86, 0.26);
+  color: #9bc3a7;
+}
+
+.foundry-stages > div > span {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: #858b95;
+  font-size: 9px;
+}
+
+.foundry-stages > div.active > span {
+  color: #e3e5e1;
+}
+
+.foundry-stages small {
+  color: #555c67;
+  font-family: "DM Mono", monospace;
+  font-size: 6px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.foundry-copy-block {
+  margin-top: 36px;
+  padding: 13px;
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  border-radius: 11px;
+  background: rgba(3, 4, 7, 0.5);
+}
+
+.foundry-copy-block code {
+  color: #7e8f87;
+  font-family: "DM Mono", monospace;
+  font-size: 7px;
+}
+
+.foundry-stage {
+  position: relative;
+  z-index: 1;
+  grid-column: 2;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.foundry-stage::after {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  background: radial-gradient(circle at center, transparent 40%, rgba(8, 9, 13, 0.13) 72%, rgba(8, 9, 13, 0.72) 100%);
+  content: "";
+  pointer-events: none;
+}
+
+.foundry-stage canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.foundry-status,
+.foundry-savings {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  transform: translateX(-50%);
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  background: rgba(17, 19, 24, 0.76);
+  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(18px);
+}
+
+.foundry-status {
+  bottom: 30px;
+  gap: 11px;
+  min-width: 220px;
+  padding: 11px 15px;
+  border-radius: 15px;
+}
+
+.foundry-status > i {
+  width: 26px;
+  height: 26px;
+  border-radius: 9px;
+  background: radial-gradient(circle at 35% 30%, #c7efcf, #4d7760 48%, #1d2f25 78%);
+  box-shadow: 0 0 19px rgba(116, 180, 134, 0.2);
+}
+
+.foundry-status.working > i {
+  animation: foundryWork 1.3s ease-in-out infinite;
+}
+
+.foundry-status > span,
+.foundry-savings > span {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.foundry-status strong,
+.foundry-savings strong {
+  color: #e2e4e0;
+  font-size: 9px;
+  font-weight: 500;
+}
+
+.foundry-savings {
+  top: 25px;
+  gap: 10px;
+  min-width: 270px;
+  padding: 10px 14px 10px 10px;
+  border-color: rgba(121, 186, 145, 0.24);
+  border-radius: 14px;
+  background: rgba(14, 27, 19, 0.8);
+  animation: foundryReveal 500ms ease both;
+}
+
+.foundry-savings > b {
+  display: grid;
+  width: 31px;
+  height: 31px;
+  border-radius: 10px;
+  background: rgba(121, 186, 145, 0.1);
+  color: #b9e2c4;
+  font-size: 12px;
+  place-items: center;
+}
+
+.foundry-savings small {
+  color: #7fa18a;
+  font-family: "DM Mono", monospace;
+  font-size: 7px;
+}
+
+.foundry-data-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 3px;
+}
+
+.foundry-data-head > i {
+  color: #4e545d;
+  font-family: "DM Mono", monospace;
+  font-size: 7px;
+  font-style: normal;
+  letter-spacing: 0.2em;
+}
+
+.foundry-metric {
+  position: relative;
+  overflow: hidden;
+  padding: 15px 16px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(28, 30, 37, 0.76), rgba(14, 16, 21, 0.66));
+}
+
+.foundry-metric::after {
+  position: absolute;
+  right: -35px;
+  bottom: -45px;
+  width: 110px;
+  height: 90px;
+  border-radius: 50%;
+  background: var(--tone);
+  filter: blur(40px);
+  opacity: 0.08;
+  content: "";
+}
+
+.foundry-metric-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #9298a1;
+  font-size: 8px;
+}
+
+.foundry-metric-label i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--tone);
+  box-shadow: 0 0 9px var(--tone);
+}
+
+.foundry-metric > strong {
+  display: block;
+  margin-top: 8px;
+  color: #eef0ec;
+  font-family: "DM Mono", monospace;
+  font-size: 25px;
+  font-weight: 400;
+  letter-spacing: -0.06em;
+}
+
+.foundry-metric > strong small {
+  color: #777d86;
+  font-size: 8px;
+  letter-spacing: 0;
+}
+
+.foundry-metric > span {
+  display: block;
+  margin-top: 7px;
+  color: var(--tone);
+  font-family: "DM Mono", monospace;
+  font-size: 6px;
+}
+
+.foundry-controls {
+  display: flex;
+  flex-direction: column;
+  margin-top: auto;
+  padding: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 14px;
+  background: rgba(20, 22, 28, 0.64);
+}
+
+.foundry-controls p {
+  min-height: 28px;
+  margin: 8px 0 12px;
+  color: #747a84;
+  font-size: 8px;
+  line-height: 1.55;
+}
+
+.foundry-controls > button:not(.foundry-secondary) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 11px 12px;
+  border: 0;
+  border-radius: 9px;
+  background: #eeefeb;
+  color: #111318;
+  font-size: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.foundry-controls button:disabled {
+  cursor: wait;
+  opacity: 0.46;
+}
+
+.foundry-secondary {
+  align-self: center;
+  margin-top: 10px;
+  padding: 2px;
+  border: 0;
+  background: none;
+  color: #626975;
+  font-family: "DM Mono", monospace;
+  font-size: 6px;
+  cursor: pointer;
+}
+
+.foundry-animation-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  margin-top: 9px;
+  padding: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.025);
+  color: #a7adb5;
+  font-family: "DM Mono", monospace;
+  font-size: 7px;
+  cursor: pointer;
+}
+
+.foundry-animation-toggle:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #f0f1ed;
+}
+
+.foundry-animation-toggle svg {
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+@keyframes foundryPulse {
+  0%, 100% { opacity: 0.5; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+@keyframes foundryWork {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(-2px) rotate(8deg); }
+}
+
+@keyframes foundryReveal {
+  from { opacity: 0; transform: translate(-50%, -10px) scale(0.95); }
+  to { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+
+@media (max-width: 1100px) {
+  .foundry-shell {
+    grid-template-columns: minmax(0, 1fr) 260px;
+  }
+
+  .foundry-header {
+    grid-template-columns: 220px 1fr 260px;
+  }
+
+  .foundry-story {
+    display: none;
+  }
+
+  .foundry-stage {
+    grid-column: 1;
+  }
+
+  .foundry-data {
+    grid-column: 2;
+  }
+}
+
+@media (max-width: 720px) {
+  .foundry-shell {
+    display: block;
+    height: auto;
+    min-height: 100%;
+    overflow: auto;
+  }
+
+  .foundry-header {
+    position: fixed;
+    inset: 0 0 auto;
+    display: flex;
+    justify-content: space-between;
+    height: 62px;
+  }
+
+  .foundry-brand {
+    border-right: 0;
+  }
+
+  .foundry-live {
+    display: none;
+  }
+
+  .foundry-switch {
+    padding: 0 14px;
+    border-left: 0;
+  }
+
+  .foundry-stage {
+    height: 68vh;
+    min-height: 500px;
+    margin-top: 62px;
+  }
+
+  .foundry-data {
+    gap: 9px;
+    padding: 14px;
+    border-left: 0;
+  }
+}
