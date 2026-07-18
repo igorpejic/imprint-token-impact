@@ -8,6 +8,7 @@ import "./card-layout.css";
 import "./animation-tab.css";
 import GardenWorld from "./components/GardenWorld";
 import FoundryWorld from "./components/FoundryWorld";
+import HouseholdWorld from "./components/HouseholdWorld";
 import type { DemoMode, Phase } from "./types";
 
 const periodLabels: Record<Period, string> = { day: "Today", week: "Past week", month: "Past month", lifetime: "Full lifetime" };
@@ -102,7 +103,7 @@ function Forest({projects}:{projects:Project[]}) { const haze=Math.min(.76,proje
 
 function AnimationsView({project}:{project?:Project}) { return project ? <MetricWorld project={project}/> : <section className="empty-dashboard">Choose a Codex project to enter the world view.</section>; }
 function MetricWorld({project}:{project:Project}) {
-  const [scene, setScene] = useState<"garden" | "foundry">("garden");
+  const [scene, setScene] = useState<"home" | "garden" | "foundry">("home");
   const [phase, setPhase] = useState<Phase>("working");
   const [runId, setRunId] = useState(1);
   const [progress, setProgress] = useState(.12);
@@ -120,10 +121,10 @@ function MetricWorld({project}:{project:Project}) {
   useEffect(() => { setRunId((value) => value + 1); }, [project.inputTokens, project.outputTokens, project.energy, project.water, project.carbon]);
   const restart = () => { setProgress(0); setPhase("working"); setRunId((value) => value + 1); };
   return <section className="animation-tab">
-    <div className="animation-tab-head"><div><em>IMMERSIVE LIVE VIEW</em><h1>{project.name} · physical footprint</h1><p>Motion, growth, heat, and haze are driven by this project’s actual monitored metrics.</p></div><div className="animation-picker"><button className={scene === "garden" ? "active" : ""} onClick={() => setScene("garden")}>Living world</button><button className={scene === "foundry" ? "active" : ""} onClick={() => setScene("foundry")}>Token foundry</button></div></div>
+    <div className="animation-tab-head"><div><em>IMMERSIVE LIVE VIEW</em><h1>{project.name} · physical footprint</h1><p>Watch your AI usage become a tangible household and land simulation.</p></div><div className="animation-picker"><button className={scene === "home" ? "active" : ""} onClick={() => setScene("home")}>Home & land</button><button className={scene === "garden" ? "active" : ""} onClick={() => setScene("garden")}>Living world</button><button className={scene === "foundry" ? "active" : ""} onClick={() => setScene("foundry")}>Token foundry</button></div></div>
     <div className="impact-readout"><span><i className="co2"/>Carbon <b>{metric(live.carbon * 1000, "g")}</b></span><span><i className="water"/>Water <b>{metric(live.water, "L")}</b></span><span><i className="energy"/>Energy <b>{metric(live.energy, "kWh")}</b></span><span><i className="tokens"/>Tokens <b>{compact.format(tokenVolume)}</b></span></div>
-    <div className="animation-canvas">{scene === "garden" ? <GardenWorld phase={phase} runId={runId} mode={mode} levels={levels}/> : <FoundryWorld phase={phase} runId={runId} mode={mode} progress={progress}/>}</div>
-    <div className="animation-toolbar"><div><b>{scene === "garden" ? "Living world" : "Token foundry"}</b><span>{mode === "full" ? "high observed load · full processing path" : "lighter observed load · reduced processing path"}</span></div><button onClick={() => setPhase((value) => value === "working" ? "idle" : "working")}>{phase === "working" ? "Pause" : "Play"}</button><button onClick={restart}>Replay live feed</button></div>
+    <div className="animation-canvas">{scene === "home" ? <HouseholdWorld carbonKg={live.carbon} waterLitres={live.water} energyKWh={live.energy} tokenVolume={tokenVolume} paused={phase !== "working"}/> : scene === "garden" ? <GardenWorld phase={phase} runId={runId} mode={mode} levels={levels}/> : <FoundryWorld phase={phase} runId={runId} mode={mode} progress={progress}/>}</div>
+    <div className="animation-toolbar"><div><b>{scene === "home" ? "Home & land" : scene === "garden" ? "Living world" : "Token foundry"}</b><span>{scene === "home" ? "resource draw and land burden follow live monitored usage" : mode === "full" ? "high observed load · full processing path" : "lighter observed load · reduced processing path"}</span></div><button onClick={() => setPhase((value) => value === "working" ? "idle" : "working")}>{phase === "working" ? "Pause" : "Play"}</button><button onClick={restart}>Replay live feed</button></div>
   </section>;
 }
 createRoot(document.getElementById("root")!).render(<App/>);
