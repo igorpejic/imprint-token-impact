@@ -1,89 +1,86 @@
-import { StrictMode, useEffect, useState } from 'react'
-import { createRoot } from 'react-dom/client'
-import GardenWorld from './components/GardenWorld'
-import FoundryWorld from './components/FoundryWorld'
-import type { Dashboard, DemoMode, Period, Phase, Project } from './types'
-import './styles.css'
+import { useEffect, useMemo, useState } from "react";
+import { createRoot } from "react-dom/client";
+const icon = (glyph: string) => function Icon(_props: { size?: number }) { return <span aria-hidden="true">{glyph}</span>; };
+const BarChart3 = icon("▥"), Check = icon("✓"), ChevronDown = icon("⌄"), Droplets = icon("◉"), Factory = icon("◫"), FolderSearch = icon("▣"), Leaf = icon("✦"), MapPinned = icon("⌖"), Search = icon("⌕"), Sparkles = icon("✧"), Trees = icon("♣"), Zap = icon("ϟ");
+import type { Dashboard, Period, Project } from "./types";
+import "./styles.css";
+import "./animation-tab.css";
+import GardenWorld from "./components/GardenWorld";
+import FoundryWorld from "./components/FoundryWorld";
+import type { DemoMode, Phase } from "./types";
 
-const periods: Period[] = ['day', 'week', 'month', 'lifetime']
-const periodLabel: Record<Period, string> = { day: 'Today', week: 'Past week', month: 'Past month', lifetime: 'All time' }
-const number = new Intl.NumberFormat('en-GB', { maximumFractionDigits: 1 })
+const periodLabels: Record<Period, string> = { day: "Today", week: "Past week", month: "Past month", lifetime: "Full lifetime" };
+const number = new Intl.NumberFormat("en-GB", { maximumFractionDigits: 1 });
+const compact = new Intl.NumberFormat("en-GB", { notation: "compact", maximumFractionDigits: 1 });
+const metric = (value: number, unit: string) => number.format(value) + " " + unit;
 
-function emptyDashboard(period: Period): Dashboard {
-  return {
-    projects: [], total: { energyKWh: 0, carbonKg: 0, waterLitres: 0 }, period,
-    health: { status: 'unavailable', files: 0, processed: 0, errors: 0, codexHome: '' },
-  }
+function App() {
+  const [tab, setTab] = useState<"project" | "compare" | "animations">("project");
+  const [period, setPeriod] = useState<Period>("lifetime");
+  const [dashboard, setDashboard] = useState<Dashboard>();
+  const [activeId, setActiveId] = useState("");
+  const [compareIds, setCompareIds] = useState<string[]>([]);
+  const refresh = async () => {
+    const next = await window.imprint.getDashboard({ period });
+    setDashboard(next);
+    setActiveId((value) => value || next.projects.find((project) => project.energy > 0)?.id || next.projects[0]?.id || "");
+    setCompareIds((value) => value.length ? value.filter((id) => next.projects.some((project) => project.id === id)) : next.projects.filter((project) => project.energy > 0).slice(0, 3).map((project) => project.id));
+  };
+  useEffect(() => { refresh(); return window.imprint.onUpdate(refresh); }, [period]);
+  const active = dashboard?.projects.find((project) => project.id === activeId) || dashboard?.projects[0];
+  const selected = (dashboard?.projects || []).filter((project) => compareIds.includes(project.id));
+  if (!dashboard) return <main className="loading"><Leaf size={24} /> Connecting to local Codex usage…</main>;
+  return <main className="app">
+    <header><div className="brand"><span><Droplets size={16}/></span><div><b>Imprint</b><small>the physical cost of your AI</small></div></div><nav><button className={tab === "project" ? "active" : ""} onClick={() => setTab("project")}><FolderSearch size={14}/> Project</button><button className={tab === "compare" ? "active" : ""} onClick={() => setTab("compare")}><BarChart3 size={14}/> Compare</button><button className={tab === "animations" ? "active" : ""} onClick={() => setTab("animations")}><Sparkles size={14}/> Animations</button></nav><p className="live"><i/> {dashboard.health.status === "live" ? "Live Codex monitor" : "Indexing " + dashboard.health.processed + "/" + dashboard.health.files}</p></header>
+    {tab === "animations" ? <AnimationsView/> : active ? tab === "project" ? <ProjectView project={active} projects={dashboard.projects} period={period} setPeriod={setPeriod} setActive={setActiveId}/> : <CompareView projects={dashboard.projects} selected={selected} selectedIds={compareIds} period={period} setPeriod={setPeriod} setSelected={setCompareIds}/> : <section className="empty-dashboard">No Codex projects are available yet.</section>}
+    <footer><Leaf size={13}/> Real Codex token events · operational inference estimate · carbon, water and energy remain separate</footer>
+  </main>;
 }
-
-function Monitor({ dashboard, period, setPeriod }: { dashboard: Dashboard; period: Period; setPeriod: (period: Period) => void }) {
-  const projects = dashboard.projects.filter((project) => project.energy > 0)
-  return <section className="monitor-view">
-    <div className="monitor-heading">
-      <div><span className="eyebrow">LOCAL CODEX USAGE</span><h1>Your environmental footprint</h1><p>Carbon, water and energy stay separate; values are operational estimates from recorded token activity.</p></div>
-      <div className="periods">{periods.map((item) => <button key={item} className={item === period ? 'active' : ''} onClick={() => setPeriod(item)}>{periodLabel[item]}</button>)}</div>
-    </div>
-    <div className="total-grid">
-      <Metric label="Carbon" value={dashboard.total.carbonKg * 1000} unit="g CO₂e" />
-      <Metric label="Water" value={dashboard.total.waterLitres} unit="litres" />
-      <Metric label="Energy" value={dashboard.total.energyKWh} unit="kWh" />
-    </div>
-    <section className="project-panel">
-      <div className="panel-title"><div><span className="eyebrow">PROJECTS</span><h2>Observed activity</h2></div><span className={'monitor-status ' + dashboard.health.status}>{dashboard.health.status === 'live' ? '● Live monitor' : `Indexing ${dashboard.health.processed}/${dashboard.health.files}`}</span></div>
-      {projects.length ? <div className="project-list">{projects.map((project) => <ProjectRow key={project.id} project={project} />)}</div> : <p className="empty">No token events have been indexed for this period yet. Keep using Codex and this view will update automatically.</p>}
-    </section>
-  </section>
+function ProjectView({project,projects,period,setPeriod,setActive}:{project:Project;projects:Project[];period:Period;setPeriod:(p:Period)=>void;setActive:(id:string)=>void}) {
+  const total = project.inputTokens + project.outputTokens;
+  const cached = Math.round(project.cachedInputTokens / Math.max(1, project.inputTokens) * 100);
+  return <section className="content">
+    <div className="controls"><ProjectDropdown projects={projects} selected={project.id} onChange={setActive}/><PeriodFilter period={period} setPeriod={setPeriod}/></div>
+    <section className="summary panel"><div><span className="dot"/><h1>{project.name}</h1><p>{project.models.length ? project.models.length + " model" + (project.models.length > 1 ? "s" : "") + " observed in this project" : "Waiting for Codex activity"}</p></div><div className="sum-numbers"><span><b>{compact.format(total)}</b>tokens processed</span><span><b>{metric(project.carbon * 1000, "g")}</b>CO₂e in {periodLabels[period].toLowerCase()}</span></div></section>
+    <section className="load panel"><div className="load-top"><div><em>PLANETARY LOAD</em><b>{Math.min(100,Math.round(project.carbon*36 + project.energy*12))}%</b></div><p>Actual usage updates after each Codex call. Cached context reduces fresh compute.</p></div><div className="track"><i style={{width:Math.min(100,project.carbon*36+project.energy*12)+"%"}}/></div><ModelMix project={project}/></section>
+    <section className="cards"><Carbon project={project}/><Water project={project}/><Energy project={project}/></section>
+    <section className="immersive panel"><div className="section-title"><div><em>IMMERSIVE IMPACT</em><h2>Drive through the forest you are protecting</h2></div><span><Sparkles size={14}/> avoided impact clears the haze</span></div><Forest projects={[project]}/><div className="caption"><span><Trees size={15}/> {metric(Math.max(.01,project.carbon*22),"trees·year")} annual sequestration</span><span><Check size={15}/> {cached}% cached-context efficiency</span></div></section>
+  </section>;
 }
-
-function Metric({ label, value, unit }: { label: string; value: number; unit: string }) {
-  return <article className="total-card"><span>{label}</span><strong>{number.format(value)}</strong><small>{unit}</small></article>
+function ProjectDropdown({projects,selected,onChange}:{projects:Project[];selected:string;onChange:(id:string)=>void}) {
+  const [open,setOpen]=useState(false),[query,setQuery]=useState(""); const current=projects.find((p)=>p.id===selected); const list=projects.filter((p)=>p.name.toLowerCase().includes(query.toLowerCase()));
+  return <div className="picker"><button onClick={()=>setOpen(!open)}><span><i className="dot"/>{current?.name || "Select project"}</span><ChevronDown size={16}/></button>{open && <div className="menu"><label><Search size={15}/><input autoFocus value={query} onChange={(e)=>setQuery(e.target.value)} placeholder="Search projects…"/></label>{list.map((p)=><button key={p.id} className={p.id===selected?"selected":""} onClick={()=>{onChange(p.id);setOpen(false);setQuery("");}}><span><b>{p.pinned?"Pinned · ":""}{p.name}</b><small>{p.models.length?p.models.map((m)=>m.model).join(" · "):"No captured usage yet"}</small></span>{p.id===selected&&<Check size={16}/>}</button>)}{!list.length&&<p>No matching projects.</p>}</div>}</div>;
 }
-
-function ProjectRow({ project }: { project: Project }) {
-  const tokens = project.inputTokens + project.outputTokens
-  return <article className="project-row"><div><strong>{project.name}</strong><small>{project.models.length ? project.models.map((model) => model.model).join(' · ') : 'Model pending'}</small></div><span>{number.format(tokens)} tokens</span><span>{number.format(project.carbon * 1000)} g CO₂e</span><span>{number.format(project.water)} L</span></article>
+function PeriodFilter({period,setPeriod}:{period:Period;setPeriod:(p:Period)=>void}) { return <div className="filters">{(Object.keys(periodLabels) as Period[]).map((item)=><button key={item} className={period===item?"active":""} onClick={()=>setPeriod(item)}>{periodLabels[item]}</button>)}</div>; }
+function ModelMix({project}:{project:Project}) { const total=Math.max(.000001,project.energy); return <div className="models"><div><span>Observed model mix</span><span>{project.models.length>1?"multi-model project":"single model"}</span></div>{project.models.map((m,i)=><article key={m.model}><p><i className={"c"+i}/>{m.model}<small>{m.confidence==="low"?"estimated profile":"catalog profile"}</small></p><span><b><i className={"c"+i} style={{width:m.energy/total*100+"%"}}/></b><strong>{compact.format(m.inputTokens+m.outputTokens)} tokens</strong></span></article>)}</div>; }
+function Carbon({project}:{project:Project}) { const km=project.carbon/.171; return <article className="card carbon"><h3><MapPinned size={15}/>Carbon</h3><div className="map"><i className="river"/><i className="route"/><b>▰</b><small>London</small></div><strong>{metric(km,"km")}</strong><p>equivalent to a small car route through London</p><footer>{metric(project.carbon*1000,"g CO₂e")} operational estimate</footer></article>; }
+function Water({project}:{project:Project}) { const count=Math.min(30,Math.max(1,Math.round(project.water/.5))); return <article className="card water"><h3><Droplets size={15}/>Water</h3><div className="water-scene"><div>{Array.from({length:count},(_,i)=><i key={i}/>)}</div><b className="person"/></div><strong>{metric(project.water,"L")}</strong><p>{Math.round(project.water/.5)} reusable-bottle equivalents</p><footer>evaporated cooling and grid water</footer></article>; }
+function Energy({project}:{project:Project}) { const lit=Math.min(10,Math.ceil(project.energy/.62)); return <article className="card energy"><h3><Zap size={15}/>Energy</h3><div className="house"><i className="moon"/>{Array.from({length:10},(_,i)=><b key={i} className={i<lit?"lit":""}/>)}</div><strong>{metric(project.energy/.62,"hrs")}</strong><p>of a home’s evening electricity</p><footer>{metric(project.energy,"kWh")} drawn from the grid</footer></article>; }
+function CompareView({projects,selected,selectedIds,period,setPeriod,setSelected}:{projects:Project[];selected:Project[];selectedIds:string[];period:Period;setPeriod:(p:Period)=>void;setSelected:(v:string[])=>void}) {
+  const [daily,setDaily]=useState(false); const toggle=(id:string)=>setSelected(selectedIds.includes(id)?selectedIds.filter((v)=>v!==id):selectedIds.length<5?[...selectedIds,id]:selectedIds); const value=(project:Project,key:"carbon"|"water"|"energy")=>daily?project[key]/(period==="month"?30:period==="week"?7:1):project[key];
+  return <section className="content"><div className="controls compare-controls"><ComparePicker projects={projects} selected={selectedIds} toggle={toggle}/><div className="filters"><button className={!daily?"active":""} onClick={()=>setDaily(false)}>Total usage</button><button className={daily?"active":""} onClick={()=>setDaily(true)}>Per day</button></div><PeriodFilter period={period} setPeriod={setPeriod}/></div><section className="compare-title panel"><div><em>COMPARE UP TO FIVE PROJECTS</em><h1>Footprint, without a blended score</h1><p>Ranked separately by carbon, water, energy, and a transparent impact index.</p></div><b>{selected.length}/5 selected</b></section><section className="chart-grid"><Rank title="Carbon" unit="kg CO₂e" icon={<Factory size={15}/>} projects={selected} get={(p)=>value(p,"carbon")}/><Rank title="Water" unit="litres" icon={<Droplets size={15}/>} projects={selected} get={(p)=>value(p,"water")}/><Rank title="Energy" unit="kWh" icon={<Zap size={15}/>} projects={selected} get={(p)=>value(p,"energy")}/><Rank title="Impact index" unit="/ 100" icon={<Leaf size={15}/>} projects={selected} get={(p)=>p.carbon*55+p.water*2+p.energy*18}/></section><section className="immersive panel"><div className="section-title"><div><em>COMPARE IN THE FOREST</em><h2>One route per project, one shared atmosphere</h2></div><span><Leaf size={14}/> lighter choices clear the haze</span></div><Forest projects={selected}/><div className="caption"><span><Trees size={15}/> cars represent projects, not consumption as a reward</span><span>{daily?"daily intensity":"total selected period"}</span></div></section></section>;
 }
+function ComparePicker({projects,selected,toggle}:{projects:Project[];selected:string[];toggle:(id:string)=>void}) { const [open,setOpen]=useState(false),[query,setQuery]=useState(""); const list=projects.filter((p)=>p.name.toLowerCase().includes(query.toLowerCase())); return <div className="picker compare-picker"><button onClick={()=>setOpen(!open)}><span><BarChart3 size={15}/>Choose projects</span><b>{selected.length}/5</b></button>{open&&<div className="menu"><label><Search size={15}/><input autoFocus value={query} onChange={(e)=>setQuery(e.target.value)} placeholder="Search up to 100 projects…"/></label>{list.map((p)=><button key={p.id} className={selected.includes(p.id)?"selected":""} onClick={()=>toggle(p.id)}><span><b>{p.name}</b><small>{p.models.length?p.models.length+" model"+(p.models.length>1?"s":""):"No usage"}</small></span>{selected.includes(p.id)&&<Check size={16}/>}</button>)}</div>}</div>; }
+function Rank({title,unit,icon,projects,get}:{title:string;unit:string;icon:React.ReactNode;projects:Project[];get:(p:Project)=>number}) { const list=[...projects].sort((a,b)=>get(b)-get(a)),max=Math.max(.0001,...list.map(get)); return <article className="rank panel"><header><span>{icon}{title}</span><small>{unit}</small></header>{list.length?list.map((p,i)=><div key={p.id}><em>0{i+1}</em><section><b>{p.name}</b><span><i style={{width:get(p)/max*100+"%"}}/></span></section><strong>{number.format(get(p))}</strong></div>):<p>Choose up to five projects to compare.</p>}</article>; }
+function Forest({projects}:{projects:Project[]}) { const haze=Math.min(.76,projects.reduce((sum,p)=>sum+p.carbon,0)*.15); return <div className="forest" style={{["--haze" as string]:haze}}><div className="trees">{Array.from({length:34},(_,i)=><i key={i} style={{left:(i*11)%100+"%",bottom:10+(i*17)%33+"%",transform:"scale("+(.5+(i%5)*.13)+")"}}/>)}</div><div className="road"/>{projects.map((p,i)=><div className={"car car"+i} key={p.id} style={{left:18+i*16+"%"}}><i/><small>{p.name}</small></div>)}<b className="haze"/></div>; }
 
-function Animations() {
-  const [scene, setScene] = useState<'garden' | 'foundry'>('garden')
-  const [mode, setMode] = useState<DemoMode>('full')
-  const [phase, setPhase] = useState<Phase>('working')
-  const [runId, setRunId] = useState(1)
-  const [progress, setProgress] = useState(0.2)
-
+function AnimationsView() {
+  const [scene, setScene] = useState<"garden" | "foundry">("garden");
+  const [mode, setMode] = useState<DemoMode>("full");
+  const [phase, setPhase] = useState<Phase>("working");
+  const [runId, setRunId] = useState(1);
+  const [progress, setProgress] = useState(.22);
   useEffect(() => {
-    if (phase !== 'working') return
-    const timer = window.setInterval(() => setProgress((value) => value >= 1 ? 0 : value + 0.006), 80)
-    return () => window.clearInterval(timer)
-  }, [phase])
-
-  const restart = () => { setProgress(0); setPhase('working'); setRunId((value) => value + 1) }
-  const levels = mode === 'full' ? { water: 0.75, energy: 0.7, co2: 0.72 } : { water: 0.3, energy: 0.28, co2: 0.24 }
-  return <section className="animations-view">
-    <div className="animation-heading"><div><span className="eyebrow">INTERACTIVE IMPACT</span><h1>See the cost of each run</h1><p>Choose a visual interpretation of the monitor’s carbon, water and energy signals.</p></div><div className="scene-tabs"><button className={scene === 'garden' ? 'active' : ''} onClick={() => setScene('garden')}>Quiet Garden</button><button className={scene === 'foundry' ? 'active' : ''} onClick={() => setScene('foundry')}>Token Foundry</button></div></div>
-    <div className="animation-stage">
-      {scene === 'garden' ? <GardenWorld phase={phase} runId={runId} mode={mode} levels={levels} /> : <FoundryWorld phase={phase} runId={runId} mode={mode} progress={progress} />}
-    </div>
-    <div className="animation-controls"><div><strong>{scene === 'garden' ? 'Quiet Garden' : 'Token Foundry'}</strong><span>{mode === 'full' ? 'Full route visualisation' : 'Lighter route visualisation'}</span></div><button onClick={() => { setMode((value) => value === 'full' ? 'lighter' : 'full'); restart() }}>{mode === 'full' ? 'Show lighter route' : 'Show full route'}</button><button onClick={() => setPhase((value) => value === 'working' ? 'idle' : 'working')}>{phase === 'working' ? 'Pause' : 'Play'}</button><button onClick={restart}>Restart</button></div>
-  </section>
+    if (phase !== "working") return;
+    const timer = window.setInterval(() => setProgress((value) => value >= 1 ? 0 : value + .008), 80);
+    return () => window.clearInterval(timer);
+  }, [phase]);
+  const restart = () => { setProgress(0); setPhase("working"); setRunId((value) => value + 1); };
+  const levels = mode === "full" ? { water: .75, energy: .7, co2: .72 } : { water: .3, energy: .28, co2: .24 };
+  return <section className="animation-tab">
+    <div className="animation-tab-head"><div><em>INTERACTIVE IMPACT</em><h1>See the cost of each run</h1><p>A visual companion to the monitor’s separate carbon, water, and energy estimates.</p></div><div className="animation-picker"><button className={scene === "garden" ? "active" : ""} onClick={() => setScene("garden")}>Quiet Garden</button><button className={scene === "foundry" ? "active" : ""} onClick={() => setScene("foundry")}>Token Foundry</button></div></div>
+    <div className="animation-canvas">{scene === "garden" ? <GardenWorld phase={phase} runId={runId} mode={mode} levels={levels}/> : <FoundryWorld phase={phase} runId={runId} mode={mode} progress={progress}/>}</div>
+    <div className="animation-toolbar"><div><b>{scene === "garden" ? "Quiet Garden" : "Token Foundry"}</b><span>{mode === "full" ? "Full route visualisation" : "Lighter route visualisation"}</span></div><button onClick={() => { setMode((value) => value === "full" ? "lighter" : "full"); restart(); }}>{mode === "full" ? "Show lighter route" : "Show full route"}</button><button onClick={() => setPhase((value) => value === "working" ? "idle" : "working")}>{phase === "working" ? "Pause" : "Play"}</button><button onClick={restart}>Restart</button></div>
+  </section>;
 }
-
-function ImprintApp() {
-  const [tab, setTab] = useState<'monitor' | 'animations'>('monitor')
-  const [period, setPeriod] = useState<Period>('lifetime')
-  const [dashboard, setDashboard] = useState<Dashboard>(() => emptyDashboard('lifetime'))
-
-  useEffect(() => {
-    if (!window.imprint) return
-    const refresh = () => window.imprint.getDashboard({ period }).then(setDashboard).catch(() => setDashboard(emptyDashboard(period)))
-    refresh()
-    return window.imprint.onUpdate(refresh)
-  }, [period])
-
-  return <main className="imprint-app">
-    <header className="app-header"><div className="brand"><span>◉</span><div><strong>Imprint</strong><small>the physical cost of your AI</small></div></div><nav><button className={tab === 'monitor' ? 'active' : ''} onClick={() => setTab('monitor')}>Monitor</button><button className={tab === 'animations' ? 'active' : ''} onClick={() => setTab('animations')}>Animations</button></nav><span className="header-status">{dashboard.health.status === 'live' ? '● Live Codex monitor' : 'Local monitor'}</span></header>
-    {tab === 'monitor' ? <Monitor dashboard={dashboard} period={period} setPeriod={setPeriod} /> : <Animations />}
-  </main>
-}
-
-createRoot(document.getElementById('root')!).render(<StrictMode><ImprintApp /></StrictMode>)
+createRoot(document.getElementById("root")!).render(<App/>);

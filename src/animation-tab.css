@@ -1,0 +1,15 @@
+.animation-tab { display: grid; gap: 18px; }
+.animation-tab-head { display: flex; align-items: end; justify-content: space-between; gap: 18px; }
+.animation-tab-head em { display: block; color: #83a19d; font: 10px "DM Mono", monospace; letter-spacing: .16em; font-style: normal; }
+.animation-tab-head h1 { margin: 5px 0 4px; font-size: 25px; letter-spacing: -.045em; }
+.animation-tab-head p { margin: 0; color: #8da49f; font-size: 12px; }
+.animation-picker { display: flex; gap: 4px; padding: 4px; border: 1px solid #314448; border-radius: 10px; background: #0d181b; }
+.animation-picker button { padding: 8px 11px; border: 0; border-radius: 7px; background: transparent; color: #87999a; font-size: 11px; font-weight: 700; }
+.animation-picker button.active { color: #eff9f6; background: #1b292c; box-shadow: 0 0 0 1px #415054 inset; }
+.animation-canvas { height: min(62vh, 610px); overflow: hidden; border: 1px solid #2c4246; border-radius: 15px; background: #08090d; }
+.animation-canvas canvas { display: block; }
+.animation-toolbar { display: flex; align-items: center; gap: 8px; padding: 13px; border: 1px solid #2b4043; border-radius: 12px; background: #102024; }
+.animation-toolbar > div { display: grid; margin-right: auto; }.animation-toolbar b { font-size: 12px; }.animation-toolbar span { color: #829894; font: 10px "DM Mono", monospace; }
+.animation-toolbar button { padding: 8px 11px; border: 1px solid #3d5756; border-radius: 8px; background: #193135; color: #d6e9e4; font-size: 11px; font-weight: 700; }
+.animation-toolbar button:hover { background: #254248; }
+.empty-dashboard { padding: 40px; border: 1px solid #26373a; border-radius: 15px; color: #8da49f; text-align: center; }
