@@ -13,6 +13,7 @@ const periodLabels: Record<Period, string> = { day: "Today", week: "Past week", 
 const number = new Intl.NumberFormat("en-GB", { maximumFractionDigits: 1 });
 const compact = new Intl.NumberFormat("en-GB", { notation: "compact", maximumFractionDigits: 1 });
 const metric = (value: number, unit: string) => number.format(value) + " " + unit;
+const unavailableDashboard = (period: Period): Dashboard => ({ projects: [], total: { energyKWh: 0, carbonKg: 0, waterLitres: 0 }, period, health: { status: "browser", files: 0, processed: 0, errors: 0, codexHome: "" } });
 
 function App() {
   const [tab, setTab] = useState<"project" | "compare" | "animations">("project");
@@ -21,12 +22,15 @@ function App() {
   const [activeId, setActiveId] = useState("");
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const refresh = async () => {
-    const next = await window.imprint.getDashboard({ period });
-    setDashboard(next);
-    setActiveId((value) => value || next.projects.find((project) => project.energy > 0)?.id || next.projects[0]?.id || "");
-    setCompareIds((value) => value.length ? value.filter((id) => next.projects.some((project) => project.id === id)) : next.projects.filter((project) => project.energy > 0).slice(0, 3).map((project) => project.id));
+    if (!window.imprint) { setDashboard(unavailableDashboard(period)); return; }
+    try {
+      const next = await window.imprint.getDashboard({ period });
+      setDashboard(next);
+      setActiveId((value) => value || next.projects.find((project) => project.energy > 0)?.id || next.projects[0]?.id || "");
+      setCompareIds((value) => value.length ? value.filter((id) => next.projects.some((project) => project.id === id)) : next.projects.filter((project) => project.energy > 0).slice(0, 3).map((project) => project.id));
+    } catch { setDashboard(unavailableDashboard(period)); }
   };
-  useEffect(() => { refresh(); return window.imprint.onUpdate(refresh); }, [period]);
+  useEffect(() => { refresh(); return window.imprint?.onUpdate(refresh); }, [period]);
   const active = dashboard?.projects.find((project) => project.id === activeId) || dashboard?.projects[0];
   const selected = (dashboard?.projects || []).filter((project) => compareIds.includes(project.id));
   if (!dashboard) return <main className="loading"><Leaf size={24} /> Connecting to local Codex usage…</main>;
