@@ -121,8 +121,8 @@ function createWorldOrbGeometry() {
     const latitude = 1 - Math.abs(y / 3.58)
     const isLand = continents + latitude * 0.38 > 0.72
     const light = 0.72 + clamp((y + 3.58) / 7.16) * 0.28
-    color.set(isLand ? '#294438' : '#182f3d')
-    if (isLand && continents > 1.4) color.set('#38533c')
+    color.set(isLand ? '#345b45' : '#1d4659')
+    if (isLand && continents > 1.4) color.set('#456a4d')
     color.multiplyScalar(light)
     colors.push(color.r, color.g, color.b)
   }
@@ -1069,7 +1069,7 @@ function Tree({ level, phase, runId }: { level: number; phase: Phase; runId: num
           ].map((position, index) => (
             <mesh key={index} position={position as [number, number, number]} scale={[0.3, 0.2, 0.27]} castShadow>
               <icosahedronGeometry args={[1, 2]} />
-              <meshStandardMaterial color={index % 2 ? '#9fc27e' : '#b2cf89'} emissive="#617a4d" emissiveIntensity={0.22} roughness={0.88} />
+              <meshStandardMaterial color={index % 2 ? '#87aa70' : '#9cba79'} emissive="#506c45" emissiveIntensity={0.12} roughness={0.88} />
             </mesh>
           ))}
         </group>
@@ -1244,12 +1244,12 @@ function CloudBackdrop({ phase }: { phase: Phase }) {
   })
 
   return (
-    <group ref={clouds} position={[0.45, 3.12, -2.55]} scale={0.94}>
+    <group ref={clouds} position={[0.45, 2.9, -2.35]} scale={0.84}>
       {puffs.map(([x, y, size], index) => (
         <mesh
           key={index}
           position={[x, y, index % 2 ? 0.25 : -0.05]}
-          scale={[size * 1.34, size * 0.82, size]}
+          scale={[size * 1.04, size * 0.62, size * 0.8]}
         >
           <icosahedronGeometry args={[1, 2]} />
           <meshStandardMaterial
@@ -1257,7 +1257,7 @@ function CloudBackdrop({ phase }: { phase: Phase }) {
             emissive="#4d3e70"
             emissiveIntensity={0.32}
             transparent
-            opacity={0.18}
+            opacity={0.12}
             depthWrite={false}
           />
         </mesh>
@@ -1287,6 +1287,8 @@ function Scene({ phase, runId, levels }: Omit<Props, 'mode'>) {
       />
       <pointLight position={[4, 5, -3]} color="#a780ff" intensity={8} distance={13} />
       <pointLight position={[-5, 2, 4]} color="#69b9e8" intensity={3.8} distance={11} />
+      <pointLight position={[-3.5, -2.6, 4]} color="#6ca69a" intensity={3.1} distance={11} />
+      <pointLight position={[2, -2.2, 4]} color="#568cc2" intensity={2.3} distance={10} />
 
       <Stars radius={38} depth={16} count={750} factor={1.7} saturation={0.25} fade speed={0.25} />
       <Sparkles count={36} scale={[9, 6, 7]} size={1.2} speed={0.18} opacity={0.32} color="#b9c7ff" />
@@ -1324,7 +1326,7 @@ export default function GardenWorld({ phase, runId, levels }: Props) {
       dpr={[1, 1.5]}
       shadows
       camera={{ position: [0, 5, 11.65], fov: 42, near: 0.1, far: 80 }}
-      gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+      gl={{ antialias: true, alpha: true, preserveDrawingBuffer: true, powerPreference: 'high-performance' }}
       onCreated={({ gl }) => {
         gl.toneMapping = THREE.ACESFilmicToneMapping
         gl.toneMappingExposure = 1.08
