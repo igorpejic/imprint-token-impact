@@ -1,6 +1,6 @@
-# Quiet Garden
+# Imprint
 
-A real-time WebGL world for visualising the environmental impact of LLM work. Water grows grass, energy feeds a living fire, and carbon grows a tree canopy while remaining visible as atmospheric motes.
+An Electron dashboard for the environmental footprint of local Codex use, with interactive Quiet Garden and Token Foundry visualisations.
 
 ## Run locally
 
@@ -9,12 +9,11 @@ npm install
 npm run dev
 ```
 
-Open the local URL printed by Vite. Use **Run live task** for the full cinematic sequence, then **Run lighter route** to show the absolute resource savings.
+This opens the Electron app. The **Monitor** tab shows derived Codex usage estimates; **Animations** contains the Garden and Foundry scenes, with route, pause, and restart controls. For browser-only development, run `npm run dev:web` and open the local Vite URL.
 
-Two visual concepts are available:
+## Data handling
 
-- `/` — Quiet Garden
-- `/foundry` — Token Foundry
+The app reads `~/.codex/sessions` and `~/.codex/archived_sessions` locally. It never stores transcript text, prompts, or tool output—only derived token/model/project events and environmental estimates in the app's local SQLite database.
 
 ## Production check
 
@@ -23,11 +22,6 @@ npm run build
 npm run preview
 ```
 
-## Stack
+## Estimation note
 
-- React and TypeScript
-- Three.js through React Three Fiber
-- Procedural grass, water, fire, trees, particles, and companion animation
-- Deterministic demo telemetry using `mL`, `Wh`, and `gCO₂e`
-
-The OpenAI mark in the header is an unmodified official asset. Quiet Garden remains the primary product identity.
+Impact is calculated from recorded token activity and a versioned model coefficient range. Cached input receives a lower prefill weight; reasoning output is already part of output tokens and is not counted twice. Carbon uses a U.S. baseline of 0.3844 kgCO2e/kWh; water includes on-site plus off-site grid water. These are operational estimates, not measured data-centre telemetry.

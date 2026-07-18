@@ -1,30 +1,38 @@
 {
-  "name": "quiet-garden",
-  "private": true,
+  "name": "imprint-codex-monitor",
   "version": "0.1.0",
+  "private": true,
+  "description": "A local environmental monitor for Codex usage with interactive impact animations.",
   "type": "module",
+  "main": "electron/main.cjs",
   "scripts": {
-    "dev": "vite --host 0.0.0.0",
+    "dev": "VITE_DEV_SERVER_URL=http://localhost:5173 concurrently -k \"vite --host 0.0.0.0 --strictPort\" \"wait-on tcp:5173 && electron .\"",
+    "dev:web": "vite --host 0.0.0.0",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview --host 0.0.0.0"
+    "preview": "vite preview --host 0.0.0.0",
+    "typecheck": "tsc -b"
   },
   "dependencies": {
     "@react-three/drei": "^9.117.3",
     "@react-three/fiber": "^8.17.10",
     "@react-three/postprocessing": "^2.16.3",
+    "chokidar": "^4.0.3",
     "postprocessing": "^6.36.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "three": "^0.171.0"
   },
   "devDependencies": {
+    "@types/node": "^22.10.2",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@types/three": "^0.171.0",
     "@vitejs/plugin-react": "^4.3.4",
     "agent-browser": "^0.32.2",
+    "concurrently": "^9.1.0",
+    "electron": "^39.2.7",
     "typescript": "~5.6.3",
-    "vite": "^5.4.11"
+    "vite": "^5.4.11",
+    "wait-on": "^8.0.1"
   }
 }
