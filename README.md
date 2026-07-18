@@ -4,7 +4,7 @@ Have you ever wondered about the environmental impact of your Codex usage?
 
 Imprint helps you understand it in real time.
 
-It measures your Codex sessions usage and it into estimated into environmental impact metrics: water consumption, carbon emissions, and energy use.
+It measures your Codex sessions usage and translates it into estimated impact metrics: water consumption, carbon emissions, and energy use.
 
 Features:
 
