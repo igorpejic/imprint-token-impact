@@ -8,8 +8,14 @@
 .animation-picker button.active { color: #eff9f6; background: #1b292c; box-shadow: 0 0 0 1px #415054 inset; }
 .animation-canvas { height: min(62vh, 610px); overflow: hidden; border: 1px solid #2c4246; border-radius: 15px; background: #08090d; }
 .animation-canvas canvas { display: block; }
+.impact-readout { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.impact-readout span { display: flex; align-items: center; gap: 7px; min-width: 0; padding: 10px 11px; border: 1px solid #2b4043; border-radius: 10px; color: #93aaa5; background: #0d1b1e; font: 10px "DM Mono", monospace; }
+.impact-readout i { width: 7px; height: 7px; border-radius: 50%; flex: 0 0 auto; }
+.impact-readout i.co2 { background: #f18464; }.impact-readout i.water { background: #65c8e6; }.impact-readout i.energy { background: #f2c35f; }.impact-readout i.tokens { background: #ab8dec; }
+.impact-readout b { margin-left: auto; color: #e1f0eb; font-size: 11px; font-variant-numeric: tabular-nums; }
 .animation-toolbar { display: flex; align-items: center; gap: 8px; padding: 13px; border: 1px solid #2b4043; border-radius: 12px; background: #102024; }
 .animation-toolbar > div { display: grid; margin-right: auto; }.animation-toolbar b { font-size: 12px; }.animation-toolbar span { color: #829894; font: 10px "DM Mono", monospace; }
 .animation-toolbar button { padding: 8px 11px; border: 1px solid #3d5756; border-radius: 8px; background: #193135; color: #d6e9e4; font-size: 11px; font-weight: 700; }
 .animation-toolbar button:hover { background: #254248; }
 .empty-dashboard { padding: 40px; border: 1px solid #26373a; border-radius: 15px; color: #8da49f; text-align: center; }
+@media (max-width: 1100px) { .impact-readout { grid-template-columns: repeat(2, 1fr); } }
