@@ -12,6 +12,7 @@ Features:
 - Monitor usage and progress in real time
 - Compare projects, model versions, and effort levels
 
+![Imprint](assets/79e93.jpeg)
 
 Team members: Jeanne Piffaut, Lalit Kumar,  Igor Pejic
 
