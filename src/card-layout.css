@@ -1,0 +1,217 @@
+/* Metric cards deliberately reserve a text band above the illustration.
+   The scene can scale independently without competing with the headline. */
+.card {
+  min-height: 430px;
+  padding: 20px 22px;
+}
+
+.card h3 {
+  position: relative;
+  z-index: 3;
+}
+
+.metric-copy {
+  position: relative;
+  z-index: 3;
+  padding: 30px 0 16px;
+  background: inherit;
+}
+
+.metric-copy strong {
+  z-index: 3;
+  display: block;
+  font-size: 36px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  animation: live-glow 2.8s ease-in-out infinite;
+}
+
+.metric-copy p {
+  z-index: 3;
+  max-width: 255px;
+  margin: 10px 0 0;
+  line-height: 1.35;
+}
+
+.card footer {
+  z-index: 3;
+  right: 22px;
+  left: 22px;
+  bottom: 20px;
+}
+
+.map {
+  inset: 206px 0 70px;
+}
+
+.london-map {
+  display: grid;
+  place-items: stretch;
+  overflow: hidden;
+  background: linear-gradient(140deg, #0d2526, #102d2e);
+}
+
+.london-map::before {
+  content: none;
+}
+
+.london-map svg {
+  width: 100%;
+  height: 100%;
+  min-height: 150px;
+}
+
+.london-boundary {
+  fill: #153537;
+  stroke: #6c9c98;
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+}
+
+.thames {
+  fill: none;
+  stroke: #2a7c92;
+  stroke-width: 13;
+  opacity: .85;
+}
+
+.borough-lines path {
+  fill: none;
+  stroke: #477173;
+  stroke-width: 1;
+  opacity: .68;
+}
+
+.route-shadow,
+.route-live {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.route-shadow {
+  stroke: #254d4e;
+  stroke-width: 7;
+}
+
+.route-live {
+  stroke: #f47b52;
+  stroke-width: 7;
+  filter: drop-shadow(0 0 4px rgba(244, 123, 82, .45));
+  transition: stroke-dashoffset .7s ease-out;
+}
+
+.landmarks text {
+  fill: #9bc5c0;
+  font: 8px "DM Mono", monospace;
+}
+
+.car-marker {
+  fill: #f7d77b;
+  stroke: #fff1bd;
+  stroke-width: 1;
+  transform-box: fill-box;
+  transition: transform .7s ease-out;
+}
+
+.route-key {
+  position: absolute;
+  z-index: 2;
+  top: 10px;
+  left: 16px;
+  padding: 5px 7px;
+  border: 1px solid rgba(133, 192, 183, .32);
+  border-radius: 999px;
+  color: #bfddd7;
+  background: rgba(8, 25, 26, .76);
+  font: 9px "DM Mono", monospace;
+}
+
+.map small {
+  top: 12px;
+  right: 18px;
+}
+
+.water-scene {
+  inset: 202px 0 70px;
+}
+
+.water-scene > div {
+  grid-template-columns: repeat(7, 30px);
+  padding: 0;
+  transform: scale(.65);
+  transform-origin: top center;
+}
+
+.water-scene > div i {
+  animation: bottle-arrive .72s cubic-bezier(.2, .8, .25, 1.25) both;
+}
+
+.person {
+  bottom: -2px;
+}
+
+.house {
+  bottom: 62px;
+}
+
+.house > b {
+  transition: background .35s ease, box-shadow .5s ease;
+}
+
+.house > b.lit {
+  animation: bulb-on .75s cubic-bezier(.2, .8, .25, 1.2) both;
+}
+
+.live-value {
+  font-variant-numeric: tabular-nums;
+  animation: live-glow 2.8s ease-in-out infinite;
+}
+
+.playback-note {
+  display: inline-block;
+  margin-left: 8px;
+  color: #63cdbd;
+  font: 9px "DM Mono", monospace;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.track > i {
+  transition: width .65s ease-out;
+}
+
+@keyframes live-glow {
+  0%, 100% { text-shadow: 0 0 0 transparent; }
+  50% { text-shadow: 0 0 15px rgba(90, 217, 190, .28); }
+}
+
+@keyframes bottle-arrive {
+  from { opacity: 0; transform: translateY(18px) scale(.65); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes bulb-on {
+  0% { opacity: .22; transform: scale(.65); box-shadow: none; }
+  65% { opacity: 1; transform: scale(1.18); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .metric-copy strong,
+  .live-value { animation: none; }
+  .water-scene > div i,
+  .house > b.lit { animation: none; }
+  .track > i { transition: none; }
+}
+
+@media (max-width: 1100px) {
+  .card {
+    min-height: 400px;
+  }
+
+  .map,
+  .water-scene {
+    inset: 190px 0 66px;
+  }
+}
