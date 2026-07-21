@@ -20,6 +20,12 @@ https://github.com/user-attachments/assets/5f65b274-c295-4642-812e-0d415265ffa4
 
 ![Imprint](assets/79e93.jpeg)
 
+<img width="1157" height="950" alt="image" src="https://github.com/user-attachments/assets/52a68ea8-7c71-49af-971c-54701b6db4e6" />
+
+
+<img width="1191" height="803" alt="image" src="https://github.com/user-attachments/assets/66af97bb-c8f8-4b8b-985f-7980c403136f" />
+
+
 Team members: Jeanne Piffaut, Lalit Kumar,  Igor Pejic
 
 
