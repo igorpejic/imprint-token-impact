@@ -12,6 +12,12 @@ Features:
 - Monitor usage and progress in real time
 - Compare projects, model versions, and effort levels
 
+
+https://github.com/user-attachments/assets/5f65b274-c295-4642-812e-0d415265ffa4
+
+
+
+
 ![Imprint](assets/79e93.jpeg)
 
 Team members: Jeanne Piffaut, Lalit Kumar,  Igor Pejic
